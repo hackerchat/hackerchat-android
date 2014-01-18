@@ -11,6 +11,7 @@
     
     <!-- Chat cell dimens -->
     <dimen name="chat_cell_height">60dp</dimen>
-    <dimen name="chat_cell_heading_margin_bottom">6dp</dimen>
+    <dimen name="chat_cell_heading_margin_top">3dp</dimen>
+    <dimen name="chat_cell_subheading_margin_bottom">3dp</dimen>
 
 </resources>

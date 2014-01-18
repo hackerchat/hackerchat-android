@@ -124,7 +124,7 @@ public class HomeActivity extends Activity {
 
 					// Sync to the last message to set up the subheading
 					String lastMessageId = (String)chatSnapshot.child("lastMessage").getValue();
-					String lastMessagePath = chatSnapshot.getRef().toString() + "/messages/" + lastMessageId;
+					String lastMessagePath = HackerChatApplication.FIREBASE_BASE_URL + "/messages/" + lastMessageId;
 					Firebase lastMessageRef = new Firebase(lastMessagePath);
 					lastMessageRef.addListenerForSingleValueEvent(new ValueEventListener() {
 						@Override public void onCancelled(FirebaseError error) { }
