@@ -1,6 +1,7 @@
 package com.stallion.hackerchat.chat;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import com.firebase.client.ChildEventListener;
@@ -31,10 +32,13 @@ public class ChatActivity extends Activity {
 	public static final String TAG = "ChatActivity";
 	public static final String CHAT_PATH = "chatPath";
 	
-	private EditText mMessageInput;
+	private EditText mMessageEditText;
 	private Button mSendButton;
 	private ListView mMessagesListView;
 	private ChatAdapter mAdapter;
+	
+	// This string holds the path to this chat in Firebase
+	private String chatPath;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,14 +47,14 @@ public class ChatActivity extends Activity {
 		setContentView(R.layout.activity_chat);
 		
 		// Initialize UI components and adapter
-		mMessageInput = (EditText)findViewById(R.id.messageInput);
+		mMessageEditText = (EditText)findViewById(R.id.messageEditText);
 		mSendButton = (Button)findViewById(R.id.sendButton);
 		mMessagesListView = (ListView)findViewById(android.R.id.list);
 		mAdapter = new ChatAdapter(this, R.layout.message_cell);
 		
 		// Open the chat from the path given in the intent
 		Bundle data = getIntent().getExtras();
-		String chatPath = data.getString(CHAT_PATH, null);
+		chatPath = data.getString(CHAT_PATH, null);
 		
 		if (chatPath == null) {
 			// Shouldn't ever happen, but hey
@@ -75,6 +79,7 @@ public class ChatActivity extends Activity {
 				public void onChildAdded(DataSnapshot messageSnapshot, String previousMessageName) {
 					String messageId = (String)messageSnapshot.getValue();
 					mAdapter.addMessageId(messageId);
+					mMessagesListView.setSelection(mAdapter.getCount() - 1);
 				}
 
 				@Override public void onChildRemoved(DataSnapshot messageSnapshot) {
@@ -86,10 +91,45 @@ public class ChatActivity extends Activity {
 		}
 		
 		// Set up send button
+		final Activity activity = this;
 		mSendButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				// TODO: Send the message here
+				
+				String messageText = mMessageEditText.getText().toString();
+
+				// Check that the message isn't empty
+				if (!"".equals(messageText)) {
+					// Get the username of the current user
+					String username = activity.getSharedPreferences(HackerChatApplication.USER_PREFS, 0)
+							.getString(HackerChatApplication.USER_PREFS_USERNAME, null);
+
+					// Get the current epoch time
+					Long time = System.currentTimeMillis()/1000;
+
+					// Build a new message object and fill it with data
+					HashMap<String, Object> message = new HashMap<String, Object>();
+					message.put("text", messageText);
+					message.put("sender", username);
+					message.put("time", time);
+
+					// Save the message in the global message store
+					Firebase globalMessagesRef = new Firebase(HackerChatApplication.FIREBASE_BASE_URL + "/messages");
+					Firebase newGlobalMessageRef = globalMessagesRef.push();
+					newGlobalMessageRef.setValue(message);
+					
+					// Push a reference to this message to this chat
+					Firebase chatRef = new Firebase(chatPath);
+					Firebase chatMessageRef = chatRef.child("messages").push();
+					chatMessageRef.setValue(newGlobalMessageRef.getName(), time);
+					
+					// Save the message in lastMessage
+					Firebase lastMessageRef = chatRef.child("lastMessage");
+					lastMessageRef.setValue(newGlobalMessageRef.getName());
+					
+					// Clear the edittext
+					mMessageEditText.setText(null);
+				}
 			}
 		});
 	}
