@@ -11,11 +11,14 @@ import com.stallion.hackerchat.R;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,7 +28,7 @@ public class HomeActivity extends Activity {
 	public static final String TAG = "HomeActivity";
 	
 	// Chat List
-	private ListView mList;
+	private ListView mChatsListView;
 	private TextView mWelcomeTextView;
 	private ChatArrayAdapter mAdapter;
 	
@@ -35,12 +38,12 @@ public class HomeActivity extends Activity {
 		setContentView(R.layout.activity_home);
 		
 		// Initialize views
-		mList = (ListView)findViewById(android.R.id.list);
+		mChatsListView = (ListView)findViewById(android.R.id.list);
 		mWelcomeTextView = (TextView)findViewById(R.id.welcomeTextView);
 		
 		// Initialize adapter to the list
 		mAdapter = new ChatArrayAdapter(this, R.layout.chat_cell);
-		mList.setAdapter(mAdapter);
+		mChatsListView.setAdapter(mAdapter);
 		
 		// Get name from shared preferences
 		String name = getSharedPreferences(HackerChatApplication.USER_PREFS, 0)
@@ -73,6 +76,18 @@ public class HomeActivity extends Activity {
 				// Set the data and refresh the adapter
 				mAdapter.setData(paths);
 				mAdapter.notifyDataSetChanged();
+			}
+		});
+		
+		final Activity activity = this;
+		// Add an item click listener to the chat list to open chats!
+		mChatsListView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				// Open the chat activity, passing the path of the chat via an intent.
+				Intent intent = new Intent(activity, ChatActivity.class);
+				intent.putExtra(ChatActivity.CHAT_PATH, mAdapter.getPath(position));
+				startActivity(intent);
 			}
 		});
 	}
@@ -208,6 +223,10 @@ public class HomeActivity extends Activity {
 		
 		public void setData(ArrayList<String> data) {
 			mData = data;
+		}
+		
+		public String getPath(int position) {
+			return mData.get(position);
 		}
 	}
 }

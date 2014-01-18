@@ -5,9 +5,13 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     
-    <!-- Splash Screen -->
+    <!-- Splash -->
     <string name="logo_text_1">hacker</string>
     <string name="logo_text_2">chat</string>
     <string name="log_in">Log In</string>
+    
+    <!-- Chat -->
+    <string name="message_bar_hint">Enter text, code, or math</string>
+    <string name="send_button_text">Send</string>
 
 </resources>
