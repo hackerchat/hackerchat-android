@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">HackerChat</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    
+    <!-- Splash Screen -->
+    <string name="logo_text_1">hacker</string>
+    <string name="logo_text_2">chat</string>
+    <string name="log_in">Log In</string>
+
+</resources>
