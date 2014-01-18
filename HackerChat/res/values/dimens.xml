@@ -8,5 +8,9 @@
     <dimen name="button_height">56dp</dimen>
     <dimen name="button_side_padding">20dp</dimen>
     <dimen name="button_text_size">14dp</dimen>
+    
+    <!-- Chat cell dimens -->
+    <dimen name="chat_cell_height">60dp</dimen>
+    <dimen name="chat_cell_heading_margin_bottom">6dp</dimen>
 
 </resources>
