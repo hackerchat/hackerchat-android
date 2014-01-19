@@ -1,4 +1,4 @@
-package com.stallion.hackerchat.chat;
+package com.stallion.hackerchat.activity.chat;
 
 import java.util.ArrayList;
 
@@ -30,6 +30,7 @@ public class HomeActivity extends Activity {
 	// Chat List
 	private ListView mChatsListView;
 	private TextView mWelcomeTextView;
+	private TextView mNameTextView;
 	private ChatArrayAdapter mAdapter;
 	
 	@Override
@@ -40,6 +41,7 @@ public class HomeActivity extends Activity {
 		// Initialize views
 		mChatsListView = (ListView)findViewById(android.R.id.list);
 		mWelcomeTextView = (TextView)findViewById(R.id.welcomeTextView);
+		mNameTextView = (TextView)findViewById(R.id.nameTextView);
 		
 		// Initialize adapter to the list
 		mAdapter = new ChatArrayAdapter(this, R.layout.chat_cell);
@@ -50,7 +52,8 @@ public class HomeActivity extends Activity {
 				.getString(HackerChatApplication.USER_PREFS_USERNAME, null);
 
 		// Display name in a welcome message
-		mWelcomeTextView.setText(String.format("Welcome, %s.", name));
+		mWelcomeTextView.setText("Welcome, ");
+		mNameTextView.setText(name);
 		
 		// Build user path
 		String username = getSharedPreferences(HackerChatApplication.USER_PREFS, 0)
@@ -111,7 +114,7 @@ public class HomeActivity extends Activity {
 
 			if (convertView == null) {
 				// Inflate a new view if the old view is null.
-				convertView = LayoutInflater.from(mContext).inflate(mResource, null);
+				convertView = LayoutInflater.from(mContext).inflate(mResource, null, false);
 			}
 			
 			// Displays a list of names, for example: "Shane, Jonah, Ford"

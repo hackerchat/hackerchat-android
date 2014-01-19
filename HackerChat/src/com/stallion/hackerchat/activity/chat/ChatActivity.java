@@ -1,8 +1,7 @@
-package com.stallion.hackerchat.chat;
+package com.stallion.hackerchat.activity.chat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -20,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -141,6 +141,9 @@ public class ChatActivity extends Activity {
 		
 		// These strings are message ids, loaded async
 		ArrayList<String> mData;
+		
+		// Cache the message info
+		ArrayList<HackerMessage> mCache;
 
 		public ChatAdapter(Context context, int resource) {
 			super(context, resource);
@@ -148,48 +151,71 @@ public class ChatActivity extends Activity {
 			mResource = resource;
 			
 			mData = new ArrayList<String>();
+			mCache = new ArrayList<HackerMessage>();
 		}
 		
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
 
-			if (convertView == null) {
-				// Create a view if we don't have one
+			if (convertView == null || mCache.get(position) == null) {
+				// Create a new view if there's no view to convert or if we don't have cached data
 				convertView = LayoutInflater.from(mContext).inflate(mResource, null);
 			}
-			
+
 			// Initialize UI components for the views
 			final TextView nameTextView = (TextView)convertView.findViewById(R.id.nameTextView);
 			final TextView messageTextView = (TextView)convertView.findViewById(R.id.messageTextView);
 			
-			// Sync to the message!
-			String messagePath = HackerChatApplication.FIREBASE_BASE_URL + "/messages/" + mData.get(position);
-			Firebase messageRef = new Firebase(messagePath);
-			messageRef.addListenerForSingleValueEvent(new ValueEventListener() {
-				@Override public void onCancelled(FirebaseError error) { }
+			// Fill in the UI with information
+			if (mCache.get(position) == null) {
+				// Initialize a new model object for caching
+				final HackerMessage model = new HackerMessage();
 
-				@Override
-				public void onDataChange(DataSnapshot messageSnapshot) {
-					// TODO: Make these things fade in together?
-					
-					// Update the message text
-					messageTextView.setText((String)messageSnapshot.child("text").getValue());
-					
-					// Sync to the user object to get name
-					String username = (String)messageSnapshot.child("sender").getValue();
-					String userPath = HackerChatApplication.FIREBASE_BASE_URL + "/users/" + username;
-					Firebase userRef = new Firebase(userPath);
-					userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-						@Override public void onCancelled(FirebaseError error) { }
+				// We don't have a cached model, so sync to the message
+                String messagePath = HackerChatApplication.FIREBASE_BASE_URL + "/messages/" + mData.get(position);
+                Firebase messageRef = new Firebase(messagePath);
+                messageRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override public void onCancelled(FirebaseError error) { }
 
-						@Override
-						public void onDataChange(DataSnapshot userSnapshot) {
-							// Update the name label
-							nameTextView.setText((String)userSnapshot.child("name").getValue());
-						}
-					});
-				}
-			});
+                    @Override
+                    public void onDataChange(DataSnapshot messageSnapshot) {
+                        // TODO: Make these things fade in together?
+                        
+                        // Update the message text and the model object
+                    	String messageText = (String)messageSnapshot.child("text").getValue();
+                        messageTextView.setText(messageText);
+                        model.text = messageText;
+                        
+                        // Update the time in the model
+                        model.time = (Long)messageSnapshot.child("time").getValue();
+                        
+                        // Sync to the user object to get name
+                        String username = (String)messageSnapshot.child("sender").getValue();
+                        String userPath = HackerChatApplication.FIREBASE_BASE_URL + "/users/" + username;
+                        Firebase userRef = new Firebase(userPath);
+                        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override public void onCancelled(FirebaseError error) { }
+
+                            @Override
+                            public void onDataChange(DataSnapshot userSnapshot) {
+                                // Update the name label and the model
+                            	String senderName = (String)userSnapshot.child("name").getValue();
+                                nameTextView.setText(senderName);
+                                model.senderName = senderName;
+                                
+                                // Save the model object
+                                mCache.set(position, model);
+                            }
+                        });
+                    }
+                });
+
+			} else {
+				// Complete the UI from the model
+				HackerMessage model = mCache.get(position);
+                messageTextView.setText(model.text);
+				nameTextView.setText(model.senderName);
+			}
 			
 			return convertView;
 		}
@@ -201,6 +227,7 @@ public class ChatActivity extends Activity {
 		
 		public void addMessageId(String messageId) {
 			mData.add(messageId);
+			mCache.add(null);
 			notifyDataSetChanged();
 		}
 		
@@ -208,6 +235,7 @@ public class ChatActivity extends Activity {
 			// The end is really the front, since the end of the list (i.e. the stuff at the bottom
 			// of the chat) is the most recent stuff.
 			mData.remove(0);
+			mCache.remove(0);
 			notifyDataSetChanged();
 		}
 	}

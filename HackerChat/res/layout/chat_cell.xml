@@ -2,25 +2,31 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/chat_cell_height"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="@drawable/list_item_selector" >
     
     <TextView
         android:id="@+id/headingTextView"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_marginTop="@dimen/chat_cell_heading_margin_top"
 
         android:textStyle="bold"
-        android:textSize="18dp"
+        android:textSize="24dp"
         />
     
     <TextView
         android:id="@+id/subheadingTextView"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_marginBottom="@dimen/chat_cell_subheading_margin_bottom"
 
-        android:textSize="14dp"
+		android:fontFamily="sans-serif-light"
+        android:textSize="18dp"
         />
 
 </LinearLayout>

@@ -13,11 +13,11 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/chat_list"
         android:theme="@style/AppTheme"
         android:name="com.stallion.hackerchat.HackerChatApplication" >
         <activity
-            android:name="com.stallion.hackerchat.SplashActivity"
+            android:name="com.stallion.hackerchat.activity.SplashActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Light.NoTitleBar"
             android:noHistory="true" >
@@ -29,11 +29,12 @@
         </activity>
         
         <activity 
-            android:name="com.stallion.hackerchat.chat.HomeActivity" 
+            android:name="com.stallion.hackerchat.activity.chat.HomeActivity" 
             android:label="hackerchat"
             />
         
-        <activity android:name="com.stallion.hackerchat.chat.ChatActivity" />
+        <activity android:name="com.stallion.hackerchat.activity.chat.ChatActivity"
+            android:windowSoftInputMode="stateHidden" />
     </application>
 
 </manifest>

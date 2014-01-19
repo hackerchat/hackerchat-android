@@ -13,5 +13,6 @@
     <!-- Chat -->
     <string name="message_bar_hint">Enter text, code, or math</string>
     <string name="send_button_text">Send</string>
+    <string name="chat_list">Chats</string>
 
 </resources>

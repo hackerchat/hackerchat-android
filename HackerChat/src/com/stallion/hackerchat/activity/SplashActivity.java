@@ -1,6 +1,8 @@
-package com.stallion.hackerchat;
+package com.stallion.hackerchat.activity;
 
-import com.stallion.hackerchat.chat.HomeActivity;
+import com.stallion.hackerchat.HackerChatApplication;
+import com.stallion.hackerchat.R;
+import com.stallion.hackerchat.activity.chat.HomeActivity;
 
 import android.os.Bundle;
 import android.view.View;
