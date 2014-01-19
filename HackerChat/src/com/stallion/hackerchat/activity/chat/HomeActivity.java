@@ -13,8 +13,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -95,6 +97,55 @@ public class HomeActivity extends Activity {
 		});
 	}
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.home, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+	    switch (item.getItemId()) {
+	        case R.id.action_create_chat:
+	        	// Create a new chat and open it
+	        	// Get username
+	        	String username = getSharedPreferences(HackerChatApplication.USER_PREFS, 0)
+	        			.getString(HackerChatApplication.USER_PREFS_USERNAME, null);
+
+	        	String chatsPath = HackerChatApplication.FIREBASE_BASE_URL + "/chats";
+	        	Firebase newChatRef = new Firebase(chatsPath).push();
+	        	Firebase usersRef = newChatRef.child("users");
+
+	        	// Add this user to the chat
+	        	Firebase userRef = usersRef.push();
+	        	userRef.setValue(username);
+	        	
+	        	// Add the created time to the chat
+	        	Long time = System.currentTimeMillis() / 1000;
+	        	newChatRef.child("time").setValue(time);
+	        	
+	        	// Set the priority of the chat to be the negative created time,
+	        	// so that it appears at the top when newer things happen
+	        	newChatRef.setPriority(-time);
+	        	
+	        	// Add this chat to the current user's list of chats
+	        	String usersChatsPath = HackerChatApplication.FIREBASE_BASE_URL + "/users/" + username + "/chats";
+	        	Firebase newUsersChatsRef = new Firebase(usersChatsPath).push();
+	        	newUsersChatsRef.setValue(newChatRef.getName());
+	        	
+	        	// Open the chat
+	        	Intent intent = new Intent(this, ChatActivity.class);
+	        	intent.putExtra(ChatActivity.CHAT_PATH, chatsPath + "/" + newChatRef.getName());
+	        	startActivity(intent);
+	        	
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	
 	public static class ChatArrayAdapter extends ArrayAdapter<String> {
 		
 		private Context mContext;
@@ -162,16 +213,21 @@ public class HomeActivity extends Activity {
 
 									@Override
 									public void onDataChange(DataSnapshot senderUserSnapshot) {
-										// Set the text of the subheading
-										String senderName = (String)senderUserSnapshot.child("name").getValue();
-										subheadingTextView.setText(senderName + ": " + lastMessageText);
-
-                                        Log.i(TAG, "group. sender: " + senderName + " message: " + lastMessageText);
+										// Check if this is you or someone else
+										String senderUserPath = HackerChatApplication.FIREBASE_BASE_URL + "/users/" + senderUserSnapshot.getName();
+                                        String senderName;
+										if (senderUserPath.equals(currentUserPath)) {
+											// Set the name to be "You"
+											senderName = "You";
+										} else {
+                                            // Set the name to be whatever the other person's name is
+                                            senderName = (String)senderUserSnapshot.child("name").getValue();
+										}
+                                        subheadingTextView.setText(senderName + ": " + lastMessageText);
 									}
 								});
 
 							} else {
-								Log.i(TAG, "1:1. message: " + lastMessageText);
 								// If it's a one on one just show the message
 								subheadingTextView.setText(lastMessageText);
 							}
@@ -211,6 +267,19 @@ public class HomeActivity extends Activity {
 									headingTextView.setText(text);
 								}
 							});
+
+						} else {
+							// Add "You" to the heading
+                            String text = headingTextView.getText().toString();
+                            String name = "You";
+
+                            if ("".equals(text)) {
+                                // This is the first name!
+                                text = name;
+                            } else {
+                                text += ", " + name;
+                            }
+                            headingTextView.setText(text);
 						}
 					}
 				}

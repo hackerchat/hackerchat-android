@@ -19,7 +19,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -126,6 +125,9 @@ public class ChatActivity extends Activity {
 					// Save the message in lastMessage
 					Firebase lastMessageRef = chatRef.child("lastMessage");
 					lastMessageRef.setValue(newGlobalMessageRef.getName());
+					
+					// Set the priority of this chat to be the time of the most recent message
+					chatRef.setPriority(-time);
 					
 					// Clear the edittext
 					mMessageEditText.setText(null);

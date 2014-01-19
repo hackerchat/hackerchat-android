@@ -2,5 +2,4 @@
 <resources>
     <color name="list_default">#ffffff</color>
     <color name="list_pressed">#bbbbbb</color>
-    
 </resources>
